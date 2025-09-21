@@ -15,7 +15,7 @@ class MarketCardManager {
   constructor() {
     this.currentMarkets = [];
     this.activeFilter = 'all';
-    this.tradingModal = null;
+    this.bettingModal = null;
     this.currentTradeData = null;
 
     // Bind methods
@@ -75,28 +75,28 @@ class MarketCardManager {
   }
 
   /**
-   * Setup trading modal functionality
+   * Setup betting modal functionality
    */
   setupTradingModal() {
-    const tradingModal = document.querySelector('[data-modal="trade"]');
-    if (!tradingModal) return;
+    const bettingModal = document.querySelector('[data-modal="bet"]');
+    if (!bettingModal) return;
 
-    this.tradingModal = tradingModal;
+    this.bettingModal = bettingModal;
 
     // Trade side selection
-    const tradeOptions = tradingModal.querySelectorAll('[data-trade-side]');
+    const tradeOptions = bettingModal.querySelectorAll('[data-bet-side]');
     tradeOptions.forEach(option => {
       option.addEventListener('click', this.handleTradeSideSelection.bind(this));
     });
 
     // Trade form submission
-    const tradeForm = tradingModal.querySelector('[data-trade-input-form]');
+    const tradeForm = bettingModal.querySelector('[data-bet-input-form]');
     if (tradeForm) {
       tradeForm.addEventListener('submit', this.handleTradeSubmit);
     }
 
-    // Amount input change for trade summary
-    const amountInput = tradingModal.querySelector('#trade-amount');
+    // Amount input change for bet summary
+    const amountInput = bettingModal.querySelector('#bet-amount');
     if (amountInput) {
       amountInput.addEventListener('input', this.updateTradeSummary.bind(this));
     }
@@ -168,7 +168,7 @@ class MarketCardManager {
         <div class="market-card__prices">
           <button
             class="price-option price-option--yes"
-            data-trade-action="yes"
+            data-bet-action="yes"
             data-market-id="${market.id}"
             ${!isAuthenticated ? 'disabled' : ''}
             aria-label="Buy YES shares at ${market.yesPrice.toFixed(2)}"
@@ -180,7 +180,7 @@ class MarketCardManager {
 
           <button
             class="price-option price-option--no"
-            data-trade-action="no"
+            data-bet-action="no"
             data-market-id="${market.id}"
             ${!isAuthenticated ? 'disabled' : ''}
             aria-label="Buy NO shares at ${market.noPrice.toFixed(2)}"
@@ -227,22 +227,22 @@ class MarketCardManager {
   }
 
   /**
-   * Handle trade button clicks
+   * Handle bet button clicks
    * @param {Event} event - Click event
    */
   handleTradeClick(event) {
-    const tradeButton = event.target.closest('[data-trade-action]');
+    const tradeButton = event.target.closest('[data-bet-action]');
     if (!tradeButton) return;
 
     event.preventDefault();
 
     if (!authManager.getIsAuthenticated()) {
-      showToast('Please login to start trading', 'warning');
+      showToast('Please login to start betting', 'warning');
       return;
     }
 
     const marketId = parseInt(tradeButton.dataset.marketId);
-    const side = tradeButton.dataset.tradeAction;
+    const side = tradeButton.dataset.betAction;
     const market = this.currentMarkets.find(m => m.id === marketId);
 
     if (!market) {
@@ -259,7 +259,7 @@ class MarketCardManager {
    * @param {string} side - Trading side (yes/no)
    */
   showTradingModal(market, side) {
-    if (!this.tradingModal) return;
+    if (!this.bettingModal) return;
 
     this.currentTradeData = { market, side };
 
@@ -267,36 +267,36 @@ class MarketCardManager {
     this.hideAllModals();
 
     // Update market info in modal
-    const marketInfo = this.tradingModal.querySelector('[data-trade-market-info]');
+    const marketInfo = this.bettingModal.querySelector('[data-bet-market-info]');
     if (marketInfo) {
       marketInfo.innerHTML = `
-        <h4 class="trade-market-title">${this.escapeHtml(market.title)}</h4>
-        <p class="trade-market-category">${this.getCategoryLabel(market.category)}</p>
+        <h4 class="bet-market-title">${this.escapeHtml(market.title)}</h4>
+        <p class="bet-market-category">${this.getCategoryLabel(market.category)}</p>
       `;
     }
 
     // Update price displays
-    const yesPrice = this.tradingModal.querySelector('[data-yes-price]');
-    const noPrice = this.tradingModal.querySelector('[data-no-price]');
+    const yesPrice = this.bettingModal.querySelector('[data-yes-price]');
+    const noPrice = this.bettingModal.querySelector('[data-no-price]');
     if (yesPrice) yesPrice.textContent = `${market.yesPrice.toFixed(2)}¢`;
     if (noPrice) noPrice.textContent = `${market.noPrice.toFixed(2)}¢`;
 
-    // Update trade option selection
+    // Update bet option selection
     this.selectTradeSide(side);
 
     // Update available balance
     const user = authManager.getCurrentUser();
-    const balanceDisplay = this.tradingModal.querySelector('[data-available-balance]');
+    const balanceDisplay = this.bettingModal.querySelector('[data-available-balance]');
     if (balanceDisplay && user) {
       balanceDisplay.textContent = formatCurrency(user.balance);
     }
 
     // Reset form
-    const form = this.tradingModal.querySelector('[data-trade-input-form]');
+    const form = this.bettingModal.querySelector('[data-bet-input-form]');
     if (form) form.reset();
 
-    // Hide trade summary
-    const summary = this.tradingModal.querySelector('[data-trade-summary]');
+    // Hide bet summary
+    const summary = this.bettingModal.querySelector('[data-bet-summary]');
     if (summary) summary.style.display = 'none';
 
     // Show modal
@@ -304,10 +304,10 @@ class MarketCardManager {
     if (overlay) {
       overlay.style.display = 'flex';
       overlay.setAttribute('aria-hidden', 'false');
-      this.tradingModal.style.display = 'flex';
+      this.bettingModal.style.display = 'flex';
 
       // Focus on amount input
-      const amountInput = this.tradingModal.querySelector('#trade-amount');
+      const amountInput = this.bettingModal.querySelector('#bet-amount');
       if (amountInput) {
         setTimeout(() => amountInput.focus(), 100);
       }
@@ -315,16 +315,16 @@ class MarketCardManager {
   }
 
   /**
-   * Handle trade side selection in modal
+   * Handle bet side selection in modal
    * @param {Event} event - Click event
    */
   handleTradeSideSelection(event) {
-    const side = event.target.closest('[data-trade-side]').dataset.tradeSide;
+    const side = event.target.closest('[data-bet-side]').dataset.betSide;
     this.selectTradeSide(side);
   }
 
   /**
-   * Select trade side in modal
+   * Select bet side in modal
    * @param {string} side - Trading side (yes/no)
    */
   selectTradeSide(side) {
@@ -333,25 +333,25 @@ class MarketCardManager {
     this.currentTradeData.side = side;
 
     // Update visual selection
-    const tradeOptions = this.tradingModal.querySelectorAll('[data-trade-side]');
+    const tradeOptions = this.bettingModal.querySelectorAll('[data-bet-side]');
     tradeOptions.forEach(option => {
-      const isSelected = option.dataset.tradeSide === side;
-      option.classList.toggle('trade-option--selected', isSelected);
+      const isSelected = option.dataset.betSide === side;
+      option.classList.toggle('bet-option--selected', isSelected);
     });
 
-    // Update trade summary
+    // Update bet summary
     this.updateTradeSummary();
   }
 
   /**
-   * Update trade summary based on current inputs
+   * Update bet summary based on current inputs
    */
   updateTradeSummary() {
     if (!this.currentTradeData) return;
 
-    const amountInput = this.tradingModal.querySelector('#trade-amount');
-    const summary = this.tradingModal.querySelector('[data-trade-summary]');
-    const submitBtn = this.tradingModal.querySelector('button[type="submit"]');
+    const amountInput = this.bettingModal.querySelector('#bet-amount');
+    const summary = this.bettingModal.querySelector('[data-bet-summary]');
+    const submitBtn = this.bettingModal.querySelector('button[type="submit"]');
 
     if (!amountInput || !summary || !submitBtn) return;
 
@@ -399,7 +399,7 @@ class MarketCardManager {
   }
 
   /**
-   * Handle trade form submission
+   * Handle bet form submission
    * @param {Event} event - Form submission event
    */
   async handleTradeSubmit(event) {
@@ -425,10 +425,10 @@ class MarketCardManager {
       // Show loading state
       const submitBtn = event.target.querySelector('button[type="submit"]');
       const originalText = submitBtn.textContent;
-      submitBtn.textContent = 'Placing Trade...';
+      submitBtn.textContent = 'Placing Bet...';
       submitBtn.disabled = true;
 
-      // Place trade
+      // Place bet
       const result = await placeTrade(
         this.currentTradeData.market.id,
         this.currentTradeData.side,
@@ -445,18 +445,18 @@ class MarketCardManager {
         'success'
       );
 
-      // Dispatch trade event for portfolio updates
-      window.dispatchEvent(new CustomEvent('tradeCompleted', {
-        detail: { trade: result, market: this.currentTradeData.market }
+      // Dispatch bet event for portfolio updates
+      window.dispatchEvent(new CustomEvent('betCompleted', {
+        detail: { bet: result, market: this.currentTradeData.market }
       }));
 
     } catch (error) {
       console.error('Trade error:', error);
-      showToast(error.message || 'Failed to place trade. Please try again.', 'error');
+      showToast(error.message || 'Failed to place bet. Please try again.', 'error');
     } finally {
       // Reset button state
       const submitBtn = event.target.querySelector('button[type="submit"]');
-      submitBtn.textContent = 'Place Trade';
+      submitBtn.textContent = 'Place Bet';
       submitBtn.disabled = false;
     }
   }
@@ -487,7 +487,7 @@ class MarketCardManager {
       modal.style.display = 'none';
     });
 
-    // Clear trade data
+    // Clear bet data
     this.currentTradeData = null;
 
     // Reset form
@@ -499,13 +499,13 @@ class MarketCardManager {
    * Update market interactivity based on auth state
    */
   updateMarketInteractivity() {
-    const tradeButtons = document.querySelectorAll('[data-trade-action]');
+    const tradeButtons = document.querySelectorAll('[data-bet-action]');
     const isAuthenticated = authManager.getIsAuthenticated();
 
     tradeButtons.forEach(btn => {
       btn.disabled = !isAuthenticated;
       if (!isAuthenticated) {
-        btn.setAttribute('title', 'Login required to trade');
+        btn.setAttribute('title', 'Login required to bet');
       } else {
         btn.removeAttribute('title');
       }

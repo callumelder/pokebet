@@ -48,8 +48,8 @@ class PortfolioManager {
       this.clearPortfolio();
     });
 
-    // Listen for trade completion events
-    window.addEventListener('tradeCompleted', () => {
+    // Listen for bet completion events
+    window.addEventListener('betCompleted', () => {
       this.loadPortfolio();
     });
 

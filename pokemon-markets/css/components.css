@@ -471,36 +471,36 @@
 }
 
 /* Trading Components */
-.trade-market-info {
+.bet-market-info {
   margin-bottom: var(--space-6);
   padding: var(--space-4);
   background-color: var(--color-neutral-50);
   border-radius: var(--border-radius);
 }
 
-.trade-market-title {
+.bet-market-title {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   color: var(--color-neutral-900);
   margin-bottom: var(--space-2);
 }
 
-.trade-market-category {
+.bet-market-category {
   font-size: var(--font-size-sm);
   color: var(--color-neutral-600);
 }
 
-.trade-selection {
+.bet-selection {
   margin-bottom: var(--space-6);
 }
 
-.trade-options {
+.bet-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-3);
 }
 
-.trade-option {
+.bet-option {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -512,65 +512,65 @@
   background: var(--color-white);
 }
 
-.trade-option:hover {
+.bet-option:hover {
   border-color: var(--color-neutral-400);
 }
 
-.trade-option--yes {
+.bet-option--yes {
   border-color: var(--color-success);
 }
 
-.trade-option--yes:hover,
-.trade-option--yes.trade-option--selected {
+.bet-option--yes:hover,
+.bet-option--yes.bet-option--selected {
   border-color: var(--color-success-dark);
   background-color: color-mix(in srgb, var(--color-success) 5%, transparent);
 }
 
-.trade-option--no {
+.bet-option--no {
   border-color: var(--color-danger);
 }
 
-.trade-option--no:hover,
-.trade-option--no.trade-option--selected {
+.bet-option--no:hover,
+.bet-option--no.bet-option--selected {
   border-color: var(--color-danger-dark);
   background-color: color-mix(in srgb, var(--color-danger) 5%, transparent);
 }
 
-.trade-option__label {
+.bet-option__label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-2);
 }
 
-.trade-option--yes .trade-option__label {
+.bet-option--yes .bet-option__label {
   color: var(--color-success);
 }
 
-.trade-option--no .trade-option__label {
+.bet-option--no .bet-option__label {
   color: var(--color-danger);
 }
 
-.trade-option__price {
+.bet-option__price {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-neutral-900);
 }
 
-.trade-summary {
+.bet-summary {
   background-color: var(--color-neutral-50);
   border-radius: var(--border-radius);
   padding: var(--space-4);
   margin: var(--space-5) 0;
 }
 
-.trade-summary__row {
+.bet-summary__row {
   display: flex;
   justify-content: space-between;
   margin-bottom: var(--space-2);
   font-size: var(--font-size-sm);
 }
 
-.trade-summary__row:last-child {
+.bet-summary__row:last-child {
   margin-bottom: 0;
   font-weight: var(--font-weight-semibold);
   border-top: var(--border-width) solid var(--color-neutral-200);
@@ -688,7 +688,7 @@
     grid-template-columns: 1fr;
   }
 
-  .trade-options {
+  .bet-options {
     grid-template-columns: 1fr;
   }
 

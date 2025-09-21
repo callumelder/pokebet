@@ -90,7 +90,7 @@ class PokeBetApp {
     // Listen for component events
     window.addEventListener('userLoggedIn', this.handleUserLoggedIn.bind(this));
     window.addEventListener('userLoggedOut', this.handleUserLoggedOut.bind(this));
-    window.addEventListener('tradeCompleted', this.handleTradeCompleted.bind(this));
+    window.addEventListener('betCompleted', this.handlebetCompleted.bind(this));
     window.addEventListener('marketFilterChanged', this.handleMarketFilterChanged.bind(this));
 
     // Listen for connection/visibility events
@@ -374,16 +374,16 @@ class PokeBetApp {
   }
 
   /**
-   * Handle trade completion event
-   * @param {CustomEvent} event - Trade event
+   * Handle bet completion event
+   * @param {CustomEvent} event - bet event
    */
-  handleTradeCompleted(event) {
-    console.log('💰 Trade completed:', event.detail);
+  handlebetCompleted(event) {
+    console.log('💰 bet completed:', event.detail);
 
     // Refresh markets to get updated volumes/prices
     this.loadMarkets();
 
-    // Portfolio will be updated automatically via the tradeCompleted event
+    // Portfolio will be updated automatically via the betCompleted event
   }
 
   /**

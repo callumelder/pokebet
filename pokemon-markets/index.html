@@ -218,70 +218,70 @@
         </div>
 
         <!-- Trading Modal -->
-        <div class="modal" data-modal="trade" role="dialog" aria-labelledby="trade-modal-title" aria-modal="true">
+        <div class="modal" data-modal="bet" role="dialog" aria-labelledby="bet-modal-title" aria-modal="true">
             <div class="modal__header">
-                <h3 id="trade-modal-title" class="modal__title">Place Trade</h3>
+                <h3 id="bet-modal-title" class="modal__title">Place Bet</h3>
                 <button class="modal__close" data-action="close-modal" aria-label="Close modal">×</button>
             </div>
             <div class="modal__content">
-                <div class="trade-form" data-trade-form>
-                    <div class="trade-market-info" data-trade-market-info>
+                <div class="bet-form" data-bet-form>
+                    <div class="bet-market-info" data-bet-market-info>
                         <!-- Market info will be populated here -->
                     </div>
 
-                    <div class="trade-selection">
-                        <div class="trade-options">
-                            <button class="trade-option trade-option--yes" data-trade-side="yes">
-                                <span class="trade-option__label">YES</span>
-                                <span class="trade-option__price" data-yes-price>-</span>
+                    <div class="bet-selection">
+                        <div class="bet-options">
+                            <button class="bet-option bet-option--yes" data-bet-side="yes">
+                                <span class="bet-option__label">YES</span>
+                                <span class="bet-option__price" data-yes-price>-</span>
                             </button>
-                            <button class="trade-option trade-option--no" data-trade-side="no">
-                                <span class="trade-option__label">NO</span>
-                                <span class="trade-option__price" data-no-price>-</span>
+                            <button class="bet-option bet-option--no" data-bet-side="no">
+                                <span class="bet-option__label">NO</span>
+                                <span class="bet-option__price" data-no-price>-</span>
                             </button>
                         </div>
                     </div>
 
-                    <form class="trade-input-form" data-trade-input-form>
+                    <form class="bet-input-form" data-bet-input-form>
                         <div class="form-group">
-                            <label for="trade-amount" class="form-label">
+                            <label for="bet-amount" class="form-label">
                                 Amount to invest ($)
                             </label>
                             <input
                                 type="number"
-                                id="trade-amount"
+                                id="bet-amount"
                                 name="amount"
                                 class="form-input"
                                 min="1"
                                 step="1"
-                                aria-describedby="trade-amount-help"
+                                aria-describedby="bet-amount-help"
                             >
-                            <small id="trade-amount-help" class="form-help">
+                            <small id="bet-amount-help" class="form-help">
                                 Available balance: <span data-available-balance>$0.00</span>
                             </small>
                         </div>
 
-                        <div class="trade-summary" data-trade-summary style="display: none;">
-                            <div class="trade-summary__row">
+                        <div class="bet-summary" data-bet-summary style="display: none;">
+                            <div class="bet-summary__row">
                                 <span>Side:</span>
                                 <span data-summary-side>-</span>
                             </div>
-                            <div class="trade-summary__row">
+                            <div class="bet-summary__row">
                                 <span>Investment:</span>
                                 <span data-summary-investment>$0.00</span>
                             </div>
-                            <div class="trade-summary__row">
+                            <div class="bet-summary__row">
                                 <span>Potential payout:</span>
                                 <span data-summary-payout>$0.00</span>
                             </div>
-                            <div class="trade-summary__row">
+                            <div class="bet-summary__row">
                                 <span>Potential profit:</span>
                                 <span data-summary-profit>$0.00</span>
                             </div>
                         </div>
 
                         <button type="submit" class="btn btn--primary btn--full" disabled>
-                            Place Trade
+                            Place bet
                         </button>
                     </form>
                 </div>
