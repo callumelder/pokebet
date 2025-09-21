@@ -122,6 +122,9 @@ class AuthManager {
     const overlay = document.querySelector('[data-modal-overlay]');
 
     if (modal && overlay) {
+      // Hide all modals first
+      this.hideAllModals();
+
       overlay.style.display = 'flex';
       overlay.setAttribute('aria-hidden', 'false');
       modal.style.display = 'flex';
@@ -147,6 +150,9 @@ class AuthManager {
     const overlay = document.querySelector('[data-modal-overlay]');
 
     if (modal && overlay) {
+      // Hide all modals first
+      this.hideAllModals();
+
       overlay.style.display = 'flex';
       overlay.setAttribute('aria-hidden', 'false');
       modal.style.display = 'flex';
@@ -345,6 +351,16 @@ class AuthManager {
       if (authButtons) authButtons.style.display = 'flex';
       if (userInfo) userInfo.style.display = 'none';
     }
+  }
+
+  /**
+   * Hide all modals without hiding the overlay
+   */
+  hideAllModals() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      modal.style.display = 'none';
+    });
   }
 
   /**

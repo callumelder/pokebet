@@ -263,6 +263,9 @@ class MarketCardManager {
 
     this.currentTradeData = { market, side };
 
+    // Hide all modals first
+    this.hideAllModals();
+
     // Update market info in modal
     const marketInfo = this.tradingModal.querySelector('[data-trade-market-info]');
     if (marketInfo) {
@@ -456,6 +459,16 @@ class MarketCardManager {
       submitBtn.textContent = 'Place Trade';
       submitBtn.disabled = false;
     }
+  }
+
+  /**
+   * Hide all modals without hiding the overlay
+   */
+  hideAllModals() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      modal.style.display = 'none';
+    });
   }
 
   /**

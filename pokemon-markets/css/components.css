@@ -330,7 +330,7 @@
   max-width: 500px;
   max-height: 90vh;
   overflow: hidden;
-  display: flex;
+  display: none;
   flex-direction: column;
 }
 
