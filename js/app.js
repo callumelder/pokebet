@@ -475,7 +475,12 @@ class PokeBetApp {
     // Show/hide portfolio navigation based on auth state
     const portfolioNavBtn = document.querySelector('[data-section="portfolio"]');
     if (portfolioNavBtn) {
-      portfolioNavBtn.style.display = isAuthenticated ? 'block' : 'none';
+      const parentLi = portfolioNavBtn.closest('li');
+      if (parentLi) {
+        parentLi.style.display = isAuthenticated ? '' : 'none';
+      } else {
+        portfolioNavBtn.style.display = isAuthenticated ? '' : 'none';
+      }
     }
   }
 
