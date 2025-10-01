@@ -56,6 +56,12 @@ class AuthManager {
       loginBtn.addEventListener('click', this.showLoginModal.bind(this));
     }
 
+    // Sign up button click
+    const signupBtn = document.querySelector('[data-action="signup"]');
+    if (signupBtn) {
+      signupBtn.addEventListener('click', this.showSignupModal.bind(this));
+    }
+
     // Logout button click
     const logoutBtn = document.querySelector('[data-action="logout"]');
     if (logoutBtn) {
@@ -72,6 +78,12 @@ class AuthManager {
     const loginForm = document.querySelector('[data-login-form]');
     if (loginForm) {
       loginForm.addEventListener('submit', this.handleLoginSubmit.bind(this));
+    }
+
+    // Sign up form submission
+    const signupForm = document.querySelector('[data-signup-form]');
+    if (signupForm) {
+      signupForm.addEventListener('submit', this.handleSignupSubmit.bind(this));
     }
 
     // Custom amount form submission
@@ -176,6 +188,29 @@ class AuthManager {
   }
 
   /**
+   * Show signup modal
+   */
+  showSignupModal() {
+    const modal = document.querySelector('[data-modal="signup"]');
+    const overlay = document.querySelector('[data-modal-overlay]');
+
+    if (modal && overlay) {
+      // Hide all modals first
+      this.hideAllModals();
+
+      overlay.style.display = 'flex';
+      overlay.setAttribute('aria-hidden', 'false');
+      modal.style.display = 'flex';
+
+      // Focus on first input
+      const firstInput = modal.querySelector('input');
+      if (firstInput) {
+        setTimeout(() => firstInput.focus(), 100);
+      }
+    }
+  }
+
+  /**
    * Show add funds modal
    */
   showAddFundsModal() {
@@ -246,6 +281,66 @@ class AuthManager {
       // Reset button state
       const submitBtn = event.target.querySelector('button[type="submit"]');
       submitBtn.textContent = 'Login';
+      submitBtn.disabled = false;
+    }
+  }
+
+  /**
+   * Handle signup form submission
+   * @param {Event} event - Form submission event
+   */
+  async handleSignupSubmit(event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const email = formData.get('email');
+    const username = formData.get('username');
+    const password = formData.get('password');
+
+    if (!email || !username || !password) {
+      showToast('Please fill in all fields', 'error');
+      return;
+    }
+
+    try {
+      // Show loading state
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      submitBtn.textContent = 'Creating account...';
+      submitBtn.disabled = true;
+
+      // Sign up with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            username: username,
+            balance: 1000 // Give new users $1000 starting balance
+          }
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        showToast('Please check your email to confirm your account', 'info', 8000);
+        this.closeModal();
+      } else {
+        // Auto-login successful
+        showToast(`Welcome to PokeBet, ${username}!`, 'success');
+        this.closeModal();
+      }
+
+    } catch (error) {
+      console.error('Signup error:', error);
+      showToast(error.message || 'Signup failed. Please try again.', 'error');
+    } finally {
+      // Reset button state
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      submitBtn.textContent = 'Create Account';
       submitBtn.disabled = false;
     }
   }

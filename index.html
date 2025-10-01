@@ -52,6 +52,9 @@
                 </div>
 
                 <div class="auth-buttons" data-auth-buttons>
+                    <button class="btn btn--ghost btn--small" data-action="signup" aria-label="Sign up for account">
+                        Sign Up
+                    </button>
                     <button class="btn btn--primary btn--small" data-action="login" aria-label="Login to account">
                         Login
                     </button>
@@ -161,6 +164,58 @@
                     </div>
                     <button type="submit" class="btn btn--primary btn--full">
                         Login
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sign Up Modal -->
+        <div class="modal" data-modal="signup" role="dialog" aria-labelledby="signup-modal-title" aria-modal="true">
+            <div class="modal__header">
+                <h3 id="signup-modal-title" class="modal__title">Sign Up for PokeBet</h3>
+                <button class="modal__close" data-action="close-modal" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal__content">
+                <form class="auth-form" data-signup-form>
+                    <div class="form-group">
+                        <label for="signup-email" class="form-label">Email</label>
+                        <input
+                            type="email"
+                            id="signup-email"
+                            name="email"
+                            class="form-input"
+                            required
+                            placeholder="you@example.com"
+                            aria-describedby="signup-email-help"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-username" class="form-label">Username</label>
+                        <input
+                            type="text"
+                            id="signup-username"
+                            name="username"
+                            class="form-input"
+                            required
+                            placeholder="Choose a username"
+                            aria-describedby="signup-username-help"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password" class="form-label">Password</label>
+                        <input
+                            type="password"
+                            id="signup-password"
+                            name="password"
+                            class="form-input"
+                            required
+                            minlength="6"
+                            aria-describedby="signup-password-help"
+                        >
+                        <small id="signup-password-help" class="form-help">Minimum 6 characters</small>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full">
+                        Create Account
                     </button>
                 </form>
             </div>
