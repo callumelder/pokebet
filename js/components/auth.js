@@ -315,7 +315,7 @@ class AuthManager {
         options: {
           data: {
             username: username,
-            balance: 1000 // Give new users $1000 starting balance
+            balance: 0
           }
         }
       });
