@@ -3,7 +3,8 @@
  * Handles user authentication, session management, and user state
  */
 
-import { authenticateUser, addFunds } from '../data/mock-data.js';
+import { supabase } from '../config/supabase.js';
+import { addFunds } from '../data/mock-data.js';
 import { showToast } from './toast.js';
 
 /**
@@ -13,7 +14,6 @@ class AuthManager {
   constructor() {
     this.currentUser = null;
     this.isAuthenticated = false;
-    this.sessionKey = 'pokebet_session';
 
     // Bind methods to preserve context
     this.login = this.login.bind(this);
@@ -21,14 +21,27 @@ class AuthManager {
     this.updateBalance = this.updateBalance.bind(this);
     this.handleAddFunds = this.handleAddFunds.bind(this);
 
-    // Initialize from stored session
+    // Initialize from Supabase session
     this.loadSession();
   }
 
   /**
    * Initialize the authentication module
    */
-  init() {
+  async init() {
+    // Set up Supabase auth state listener
+    supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔐 Auth state changed:', event);
+
+      if (event === 'SIGNED_IN' && session) {
+        this.handleSupabaseSession(session);
+      } else if (event === 'SIGNED_OUT') {
+        this.currentUser = null;
+        this.isAuthenticated = false;
+        this.updateUI();
+      }
+    });
+
     this.bindEvents();
     this.updateUI();
   }
@@ -75,42 +88,67 @@ class AuthManager {
   }
 
   /**
-   * Load user session from localStorage
+   * Load user session from Supabase
    */
-  loadSession() {
+  async loadSession() {
     try {
-      const sessionData = localStorage.getItem(this.sessionKey);
-      if (sessionData) {
-        const session = JSON.parse(sessionData);
+      const { data: { session }, error } = await supabase.auth.getSession();
 
-        // Check if session is still valid (24 hours)
-        const sessionAge = Date.now() - session.timestamp;
-        const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      if (error) {
+        console.error('Error loading session:', error);
+        return;
+      }
 
-        if (sessionAge < maxAge) {
-          this.currentUser = session.user;
-          this.isAuthenticated = true;
-        } else {
-          // Session expired, remove it
-          localStorage.removeItem(this.sessionKey);
-        }
+      if (session) {
+        await this.handleSupabaseSession(session);
       }
     } catch (error) {
       console.error('Error loading session:', error);
-      localStorage.removeItem(this.sessionKey);
     }
   }
 
   /**
-   * Save user session to localStorage
+   * Handle Supabase session data
    */
-  saveSession() {
-    if (this.currentUser) {
-      const sessionData = {
-        user: this.currentUser,
-        timestamp: Date.now()
-      };
-      localStorage.setItem(this.sessionKey, JSON.stringify(sessionData));
+  async handleSupabaseSession(session) {
+    const { user } = session;
+
+    // Map Supabase user to our user format
+    this.currentUser = {
+      id: user.id,
+      email: user.email,
+      username: user.user_metadata?.username || user.email?.split('@')[0] || 'User',
+      balance: user.user_metadata?.balance || 0 // We'll store balance in user metadata for now
+    };
+
+    this.isAuthenticated = true;
+    this.updateUI();
+
+    // Dispatch custom event for other components
+    window.dispatchEvent(new CustomEvent('userLoggedIn', {
+      detail: { user: this.currentUser }
+    }));
+  }
+
+  /**
+   * Update user metadata in Supabase
+   */
+  async saveUserMetadata() {
+    if (!this.currentUser) return;
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          username: this.currentUser.username,
+          balance: this.currentUser.balance
+        }
+      });
+
+      if (error) {
+        console.error('Error saving user metadata:', error);
+      }
+    } catch (error) {
+      console.error('Error saving user metadata:', error);
     }
   }
 
@@ -173,31 +211,37 @@ class AuthManager {
     event.preventDefault();
 
     const formData = new FormData(event.target);
-    const username = formData.get('username');
+    const email = formData.get('username'); // Using username field as email
     const password = formData.get('password');
 
-    if (!username || !password) {
-      showToast('Please enter both username and password', 'error');
+    if (!email || !password) {
+      showToast('Please enter both email and password', 'error');
       return;
     }
 
     try {
       // Show loading state
       const submitBtn = event.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
       submitBtn.textContent = 'Logging in...';
       submitBtn.disabled = true;
 
-      // Authenticate user
-      const user = await authenticateUser(username, password);
+      // Sign in with Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
 
-      await this.login(user);
+      if (error) {
+        throw error;
+      }
+
+      // Session will be handled by onAuthStateChange listener
       this.closeModal();
-      showToast(`Welcome back, ${user.username}!`, 'success');
+      showToast(`Welcome back!`, 'success');
 
     } catch (error) {
       console.error('Login error:', error);
-      showToast('Login failed. Please try again.', 'error');
+      showToast(error.message || 'Login failed. Please try again.', 'error');
     } finally {
       // Reset button state
       const submitBtn = event.target.querySelector('button[type="submit"]');
@@ -255,10 +299,9 @@ class AuthManager {
         }
       });
 
-      // Add funds
-      const updatedUser = await addFunds(amount);
-      this.currentUser = updatedUser;
-      this.saveSession();
+      // Add funds (update balance)
+      this.currentUser.balance += amount;
+      await this.saveUserMetadata();
       this.updateUI();
 
       this.closeModal();
@@ -266,7 +309,7 @@ class AuthManager {
 
       // Dispatch custom event for other components
       window.dispatchEvent(new CustomEvent('balanceUpdated', {
-        detail: { newBalance: updatedUser.balance }
+        detail: { newBalance: this.currentUser.balance }
       }));
 
     } catch (error) {
@@ -287,44 +330,48 @@ class AuthManager {
   }
 
   /**
-   * Login user and update state
+   * Login user and update state (handled by Supabase now)
    * @param {Object} user - User data
    */
   async login(user) {
-    this.currentUser = user;
-    this.isAuthenticated = true;
-    this.saveSession();
-    this.updateUI();
-
-    // Dispatch custom event for other components
-    window.dispatchEvent(new CustomEvent('userLoggedIn', {
-      detail: { user }
-    }));
+    // This is now handled by handleSupabaseSession
+    // Keeping this method for backwards compatibility
+    console.log('Login handled by Supabase auth state listener');
   }
 
   /**
    * Logout user and clear state
    */
-  logout() {
-    this.currentUser = null;
-    this.isAuthenticated = false;
-    localStorage.removeItem(this.sessionKey);
-    this.updateUI();
+  async logout() {
+    try {
+      const { error } = await supabase.auth.signOut();
 
-    showToast('Successfully logged out', 'success');
+      if (error) {
+        throw error;
+      }
 
-    // Dispatch custom event for other components
-    window.dispatchEvent(new CustomEvent('userLoggedOut'));
+      this.currentUser = null;
+      this.isAuthenticated = false;
+      this.updateUI();
+
+      showToast('Successfully logged out', 'success');
+
+      // Dispatch custom event for other components
+      window.dispatchEvent(new CustomEvent('userLoggedOut'));
+    } catch (error) {
+      console.error('Logout error:', error);
+      showToast('Error logging out', 'error');
+    }
   }
 
   /**
    * Update user balance
    * @param {number} newBalance - New balance amount
    */
-  updateBalance(newBalance) {
+  async updateBalance(newBalance) {
     if (this.currentUser) {
       this.currentUser.balance = newBalance;
-      this.saveSession();
+      await this.saveUserMetadata();
       this.updateUI();
     }
   }
